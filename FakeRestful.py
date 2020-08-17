@@ -1,5 +1,5 @@
 import os
-from cipUtilities import CIPConfig
+from config import CIPConfig
 import shutil
 from time import sleep
 

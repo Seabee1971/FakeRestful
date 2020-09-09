@@ -1,8 +1,6 @@
 """
         Reads Init File
         """
-
-import logging
 import os
 from configparser import ConfigParser
 
@@ -33,13 +31,12 @@ class CIPConfig:
         return "Failed"
 
 
-class create_folder:
+class CreateFolder:
     def __init__(self, folderName):
         self.folderName = folderName
-        logging.info(f'{self.folderName} does not exist. Creating Now')
+        print(f'{self.folderName} does not exist. Creating Now')
         os.mkdir(self.folderName)
-        # logging.info(os.path.exists(self.folderName))
         if os.path.exists(self.folderName):
-            logging.info(f'{self.folderName} Created')
+            print(f'{self.folderName} Created')
             os.chdir(self.folderName)
-            logging.info(f'Current Folder: {os.getcwd()}')
+            print(f'Current Folder: {os.getcwd()}')

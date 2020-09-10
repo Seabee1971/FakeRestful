@@ -2,7 +2,7 @@ import os
 import xml.etree.ElementTree as xml
 from datetime import datetime
 
-from config import CreateFolder
+from CIP_Utilities import CreateFolder
 
 
 class CreateXml:

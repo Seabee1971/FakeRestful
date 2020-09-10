@@ -2,7 +2,7 @@
         Written by Shane Platt MTS Ventana
         Code Review by Dan Mayfield I.T. Lead Consultant
         Version 1.00
-        05AUG2020
+        09SEP2020
 """
 
 
@@ -12,11 +12,11 @@ import AllenBradley
 import CIP_Utilities as Util
 import FileTransfer as ft
 import Monitoring
-import _XML
+import XML
 import mailer
 from CIP_Utilities import CIPConfig
-from CIP_Utilities import Logger
 from CIP_Utilities import Json
+from CIP_Utilities import Logger
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     mail = mailer.Email(Config, log)
     thread2 = Monitoring.PLCTags(Config, ab, error_data, log, mail)
     thread2.start()
-    xml = _XML.CreateXml(ab, Config, thread2, log, error_data)
+    xml = XML.CreateXml(ab, Config, thread2, log, error_data)
     write_files = ft.TransferFiles(Config, xml, thread2, log, error_data)
     json = Json(Config, error_data)
 
@@ -41,7 +41,7 @@ def main():
             if error_data:
                 er = mail.SendEmail(error_data)  # er = Email Response
                 if er:
-                    log.logger.debug(er)
+                    log.logger.error(er)
         except Exception as e:
             error_data.append(f'{e.args[-1]} Retrying')
 
@@ -50,7 +50,7 @@ def main():
             """ Confirm that CIP_cycleStopTime, thread2.CIP_LastCycle_Date
                 and json_date and Json_last_st have been written and are all Strings """
             if Util.is_string(*args) and Util.eval_date_time(*args):
-                Util.set_tags(thread2, xml)
+                Util.set_tags_off(thread2, xml)
                 ret_ab_load = False
                 while (cnt := cnt + 1) <= 20:
                     ret_ab_load = ab.LoadValues()  # Calls Method load_values from AllenBradley Data Class
@@ -72,8 +72,15 @@ def main():
                         for line in split_header:
                             if line:
                                 log.logger.info(line)
-
-                        log.logger.info(ab.raw_wash_data)
+                        newline = ab.raw_wash_data.split('\n')
+                        raw_wash_data = ""
+                        for line1 in newline:
+                            if line1.startswith('--'):
+                                raw_wash_data = raw_wash_data + '\n'
+                            elif line1:
+                                raw_wash_data = raw_wash_data + line1 + '\n'
+                        # print(raw_wash_data)
+                        log.logger.info(raw_wash_data)
 
                     try:
                         if xml.StopCycle.text != json.StopTime:
@@ -81,12 +88,15 @@ def main():
                             json.StopTime = xml.StopCycle.text
                             json.ReceiptDate = xml.Date.text
                             ret = json.save()
-                            print(ret)
+                            log.logger.info(f'Json Data Updated: {ret}')
+                            thread2.running = True
                             write_files.OutboundFolder(xml.fileName)
                             write_files.file_in_EtQ = False
                             write_files.EtQfolder()
+
                         else:
                             thread2.new_receipt_trigger = False
+                            thread2.running = True
                         if write_files.file_in_EtQ:
                             # TODO write_files.RESTfulCall()
                             write_files.RESTful_success = True

@@ -24,7 +24,7 @@ with PLC() as clx:
                 try:
                     hd_cnt = 0
                     al_cnt = 0
-                    a = 0
+                    a = -1
                     while (hd_cnt := hd_cnt + 1) <= 10:
                         self.raw_header = clx.Read("Program:PRINT.Print_Form_Header[0]", 25)
                         if self.raw_header.Status.startswith("Part") or str(self.raw_header.Value) != "None":
@@ -46,7 +46,7 @@ with PLC() as clx:
                     self.load_values_status = False
 
                 else:
-                    while (a := a + 1) <= 20:
+                    while (a := a + 1) <= 19:
                         try:
                             self.raw_data = clx.Read(f"Program:PRINT.Print_Wash_Steps_Data[{a}].Wash_Steps[0]", 40)
                         except Exception as e:
@@ -56,12 +56,14 @@ with PLC() as clx:
                             if self.raw_data.Value[0] != "":
                                 for val in self.raw_data.Value:
                                     self.raw_wash_data += str(val)
-                        self.load_values_status = True
+                    self.load_values_status = True
                     return True
+
 
     class Strip:
         """ Used to strip unnecessary escape codes
              from message"""
+
         def __init__(self, EL, Error):
             self.data = []
             self.el = EL
@@ -76,10 +78,10 @@ with PLC() as clx:
                 for tags in self.data:
                     tag = tags.strip('\n').strip('\n').strip('\r').strip()
                     if (
-                        tag
-                        and not tag.startswith('VENTANA')
-                        and not tag.startswith('---')
-                        and not tag.endswith(':')
+                            tag
+                            and not tag.startswith('VENTANA')
+                            and not tag.startswith('---')
+                            and not tag.endswith(':')
                     ):
                         self.stripped_data = self.stripped_data + tag + "\t"
                 assert isinstance(self.stripped_data, str), "Not a String"

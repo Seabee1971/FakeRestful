@@ -1,11 +1,12 @@
-import logging.handlers
 import json
+import logging.handlers
 import os
 from configparser import ConfigParser
 
 
 class CIPConfig:
     """ This function loads the file "CIP_Gateway.ini"  """
+
     def __init__(self, err):
         w = 0
         self.loadFeedback = None
@@ -19,6 +20,7 @@ class CIPConfig:
                 self.EtQ_folder = config['FOLDER_LOCATIONS']['etq_folder']
                 self.archive_folder = config['FOLDER_LOCATIONS']['archive_folder']
                 self.outbound_folder = config['FOLDER_LOCATIONS']['outbound_folder']
+                self.etq_archive = config['FOLDER_LOCATIONS']['etq_archive']
                 self.IPAddress = config['DEFAULT']['ip_address']
 
                 self.email_active = bool(config["EMAIL_SETTINGS"].getboolean('email_active'))
@@ -120,11 +122,10 @@ class Json:
                     self.err.append("Set default last Stop time to 00:00:00")
                     self.StopTime = "00:00:00"
                     self.ReceiptDate = "1/1/1970"
-
             else:
                 self.StopTime = self.Data['Cycle_Stop_Time']
                 self.ReceiptDate = self.Data['Cycle_Date']
-                if is_string(self.StopTime, self.ReceiptDate):   # Confirms Json data was loaded as String
+                if is_string(self.StopTime, self.ReceiptDate):  # Confirms Json data was loaded as String
                     return True
 
 
@@ -150,9 +151,10 @@ def is_string(*args):
     return all(type(val) == str for val in args)
 
 
-def set_tags(thread, xml):
+def set_tags_off(thread, xml):
     if thread.new_receipt_trigger or thread.first_time_running:
         thread.running = False
         xml.CurrentReceiptSaved = False
         thread.first_time_running = False
-        # thread2.init_new_receipt = False
+        thread.init_new_receipt = False
+

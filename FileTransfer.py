@@ -114,7 +114,7 @@ class TransferFiles:
                 else:
                     sleep(1)
                     self.err_cnt += 1
-                    self.el.logger.debug(f'RestFul Error Count = {self.err_cnt}, Error Status = {self.res.status}')
+                    self.el.logger.warning(f'RestFul Error Count = {self.err_cnt}, Error Status = {self.res.status}')
                     if self.err_cnt >= 20:
                         self.error.append(f'Status: {self.res.status} Attempts {self.err_cnt}')
                     self.RESTful_success = False
